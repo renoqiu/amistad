@@ -100,6 +100,27 @@ module Amistad
       }
     end
 
+    def friend_ids
+      friendship_model = Amistad::Friendships.const_get(:"#{Amistad.friendship_model}")
+
+      approved_friendships = friendship_model.where{
+        ( friendable_id == my{id} ) &
+        ( pending       == false  ) &
+        ( blocker_id    == nil    )
+      }
+
+      approved_inverse_friendships = friendship_model.where{
+        ( friend_id  == my{id} ) &
+        ( pending    == false   ) &
+        ( blocker_id == nil     )
+      }
+
+      self.class.select('id').where{
+        ( id.in(approved_friendships.select{friend_id})              ) |
+        ( id.in(approved_inverse_friendships.select{friendable_id})  )
+      }.map {|entity| entity.id }
+    end
+
     # total # of invited and invited_by without association loading
     def total_friends
       self.friendship_invited(false).count + self.friendship_invited_by(false).count
