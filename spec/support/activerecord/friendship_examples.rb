@@ -9,7 +9,7 @@ shared_examples_for "the friendship model" do
 
   context "when creating friendship" do
     before do
-      @jane.invite(@david)
+      @jane.friendship_invite(@david)
       @friendship = Amistad.friendship_class.first
     end
 
@@ -42,7 +42,7 @@ shared_examples_for "the friendship model" do
 
   context "when approving friendship" do
     before do
-      @jane.invite(@david)
+      @jane.friendship_invite(@david)
       @david.approve(@jane)
       @friendship = Amistad.friendship_class.first
     end
@@ -76,7 +76,7 @@ shared_examples_for "the friendship model" do
 
   context "when blocking friendship" do
     before do
-      @jane.invite(@david)
+      @jane.friendship_invite(@david)
       @david.block(@jane)
       @friendship = Amistad.friendship_class.first
     end

@@ -1,46 +1,46 @@
 shared_examples_for "a friend model" do
   context "when creating friendships" do
     it "should invite other users to friends" do
-      @john.invite(@jane).should be_true
-      @victoria.invite(@john).should be_true
+      @john.friendship_invite(@jane).should be_true
+      @victoria.friendship_invite(@john).should be_true
     end
 
     it "should approve only friendships requested by other users" do
-      @john.invite(@jane).should be_true
+      @john.friendship_invite(@jane).should be_true
       @jane.approve(@john).should be_true
-      @victoria.invite(@john).should be_true
+      @victoria.friendship_invite(@john).should be_true
       @john.approve(@victoria).should be_true
     end
 
     it "should not invite an already invited user" do
-      @john.invite(@jane).should be_true
-      @john.invite(@jane).should be_false
-      @jane.invite(@john).should be_false
+      @john.friendship_invite(@jane).should be_true
+      @john.friendship_invite(@jane).should be_false
+      @jane.friendship_invite(@john).should be_false
     end
 
     it "should not invite an already approved user" do
-      @john.invite(@jane).should be_true
+      @john.friendship_invite(@jane).should be_true
       @jane.approve(@john).should be_true
-      @jane.invite(@john).should be_false
-      @john.invite(@jane).should be_false
+      @jane.friendship_invite(@john).should be_false
+      @john.friendship_invite(@jane).should be_false
     end
 
     it "should not invite an already blocked user" do
-      @john.invite(@jane).should be_true
+      @john.friendship_invite(@jane).should be_true
       @jane.block(@john).should be_true
-      @jane.invite(@john).should be_false
-      @john.invite(@jane).should be_false
+      @jane.friendship_invite(@john).should be_false
+      @john.friendship_invite(@jane).should be_false
     end
 
     it "should not approve a self requested friendship" do
-      @john.invite(@jane).should be_true
+      @john.friendship_invite(@jane).should be_true
       @john.approve(@jane).should be_false
-      @victoria.invite(@john).should be_true
+      @victoria.friendship_invite(@john).should be_true
       @victoria.approve(@john).should be_false
     end
 
     it "should not create a friendship with himself" do
-      @john.invite(@john).should be_false
+      @john.friendship_invite(@john).should be_false
     end
 
     it "should not approve a non-existent friendship" do
@@ -50,11 +50,11 @@ shared_examples_for "a friend model" do
 
   context "when listing friendships" do
     before(:each) do
-      @john.invite(@jane).should be_true
-      @peter.invite(@john).should be_true
-      @john.invite(@james).should be_true
+      @john.friendship_invite(@jane).should be_true
+      @peter.friendship_invite(@john).should be_true
+      @john.friendship_invite(@james).should be_true
       @james.approve(@john).should be_true
-      @mary.invite(@john).should be_true
+      @mary.friendship_invite(@john).should be_true
       @john.approve(@mary).should be_true
     end
 
@@ -70,19 +70,19 @@ shared_examples_for "a friend model" do
     end
 
     it "should list the friends who invited him" do
-      @john.invited_by.should == [@mary]
+      @john.friendship_invited_by.should == [@mary]
     end
 
     it "should list the friends who were invited by him" do
-      @john.invited.should == [@james]
+      @john.friendship_invited.should == [@james]
     end
 
     it "should list the pending friends who invited him" do
-      @john.pending_invited_by.should == [@peter]
+      @john.pending_friendship_invited_by.should == [@peter]
     end
 
     it "should list the pending friends who were invited by him" do
-      @john.pending_invited.should == [@jane]
+      @john.pending_friendship_invited.should == [@jane]
     end
 
     it "should list the friends he has in common with another user" do
@@ -123,122 +123,122 @@ shared_examples_for "a friend model" do
     end
 
     it "should check if a user was invited by another" do
-      @jane.invited_by?(@john).should be_true
-      @james.invited_by?(@john).should be_true
+      @jane.friendship_invited_by?(@john).should be_true
+      @james.friendship_invited_by?(@john).should be_true
     end
 
     it "should check if a user was not invited by another" do
-      @john.invited_by?(@jane).should be_false
-      @victoria.invited_by?(@john).should be_false
+      @john.friendship_invited_by?(@jane).should be_false
+      @victoria.friendship_invited_by?(@john).should be_false
     end
 
     it "should check if a user has invited another user" do
-      @john.invited?(@jane).should be_true
-      @john.invited?(@james).should be_true
+      @john.friendship_invited?(@jane).should be_true
+      @john.friendship_invited?(@james).should be_true
     end
 
     it "should check if a user did not invite another user" do
-      @jane.invited?(@john).should be_false
-      @james.invited?(@john).should be_false
-      @john.invited?(@victoria).should be_false
-      @victoria.invited?(@john).should be_false
+      @jane.friendship_invited?(@john).should be_false
+      @james.friendship_invited?(@john).should be_false
+      @john.friendship_invited?(@victoria).should be_false
+      @victoria.friendship_invited?(@john).should be_false
     end
   end
 
   context "when removing friendships" do
     before(:each) do
-      @jane.invite(@james).should be_true
+      @jane.friendship_invite(@james).should be_true
       @james.approve(@jane).should be_true
-      @james.invite(@victoria).should be_true
+      @james.friendship_invite(@victoria).should be_true
       @victoria.approve(@james).should be_true
-      @victoria.invite(@mary).should be_true
+      @victoria.friendship_invite(@mary).should be_true
       @mary.approve(@victoria).should be_true
-      @victoria.invite(@john).should be_true
+      @victoria.friendship_invite(@john).should be_true
       @john.approve(@victoria).should be_true
-      @peter.invite(@victoria).should be_true
-      @victoria.invite(@elisabeth).should be_true
+      @peter.friendship_invite(@victoria).should be_true
+      @victoria.friendship_invite(@elisabeth).should be_true
     end
 
     it "should remove the friends invited by him" do
       @victoria.friends.size.should == 3
       @victoria.friends.should include(@mary)
-      @victoria.invited.should include(@mary)
+      @victoria.friendship_invited.should include(@mary)
       @mary.friends.size.should == 1
       @mary.friends.should include(@victoria)
-      @mary.invited_by.should include(@victoria)
+      @mary.friendship_invited_by.should include(@victoria)
 
       @victoria.remove_friendship(@mary).should be_true
       @victoria.friends.size.should == 2
       @victoria.friends.should_not include(@mary)
-      @victoria.invited.should_not include(@mary)
+      @victoria.friendship_invited.should_not include(@mary)
       @mary.friends.size.should == 0
       @mary.friends.should_not include(@victoria)
-      @mary.invited_by.should_not include(@victoria)
+      @mary.friendship_invited_by.should_not include(@victoria)
     end
 
     it "should remove the friends who invited him" do
       @victoria.friends.size.should == 3
       @victoria.friends.should include(@james)
-      @victoria.invited_by.should include(@james)
+      @victoria.friendship_invited_by.should include(@james)
       @james.friends.size.should == 2
       @james.friends.should include(@victoria)
-      @james.invited.should include(@victoria)
+      @james.friendship_invited.should include(@victoria)
 
       @victoria.remove_friendship(@james).should be_true
       @victoria.friends.size.should == 2
       @victoria.friends.should_not include(@james)
-      @victoria.invited_by.should_not include(@james)
+      @victoria.friendship_invited_by.should_not include(@james)
       @james.friends.size.should == 1
       @james.friends.should_not include(@victoria)
-      @james.invited.should_not include(@victoria)
+      @james.friendship_invited.should_not include(@victoria)
     end
 
     it "should remove the pending friends invited by him" do
-      @victoria.pending_invited.size.should == 1
-      @victoria.pending_invited.should include(@elisabeth)
-      @elisabeth.pending_invited_by.size.should == 1
-      @elisabeth.pending_invited_by.should include(@victoria)
+      @victoria.pending_friendship_invited.size.should == 1
+      @victoria.pending_friendship_invited.should include(@elisabeth)
+      @elisabeth.pending_friendship_invited_by.size.should == 1
+      @elisabeth.pending_friendship_invited_by.should include(@victoria)
       @victoria.remove_friendship(@elisabeth).should be_true
       [@victoria, @elisabeth].map(&:reload)
-      @victoria.pending_invited.size.should == 0
-      @victoria.pending_invited.should_not include(@elisabeth)
-      @elisabeth.pending_invited_by.size.should == 0
-      @elisabeth.pending_invited_by.should_not include(@victoria)
+      @victoria.pending_friendship_invited.size.should == 0
+      @victoria.pending_friendship_invited.should_not include(@elisabeth)
+      @elisabeth.pending_friendship_invited_by.size.should == 0
+      @elisabeth.pending_friendship_invited_by.should_not include(@victoria)
     end
 
     it "should remove the pending friends who invited him" do
-      @victoria.pending_invited_by.count.should == 1
-      @victoria.pending_invited_by.should include(@peter)
-      @peter.pending_invited.count.should == 1
-      @peter.pending_invited.should include(@victoria)
+      @victoria.pending_friendship_invited_by.count.should == 1
+      @victoria.pending_friendship_invited_by.should include(@peter)
+      @peter.pending_friendship_invited.count.should == 1
+      @peter.pending_friendship_invited.should include(@victoria)
       @victoria.remove_friendship(@peter).should be_true
       [@victoria, @peter].map(&:reload)
-      @victoria.pending_invited_by.count.should == 0
-      @victoria.pending_invited_by.should_not include(@peter)
-      @peter.pending_invited.count.should == 0
-      @peter.pending_invited.should_not include(@victoria)
+      @victoria.pending_friendship_invited_by.count.should == 0
+      @victoria.pending_friendship_invited_by.should_not include(@peter)
+      @peter.pending_friendship_invited.count.should == 0
+      @peter.pending_friendship_invited.should_not include(@victoria)
     end
   end
 
   context "when blocking friendships" do
     before(:each) do
-      @john.invite(@james).should be_true
+      @john.friendship_invite(@james).should be_true
       @james.approve(@john).should be_true
       @james.block(@john).should be_true
-      @mary.invite(@victoria).should be_true
+      @mary.friendship_invite(@victoria).should be_true
       @victoria.approve(@mary).should be_true
       @victoria.block(@mary).should be_true
-      @victoria.invite(@david).should be_true
+      @victoria.friendship_invite(@david).should be_true
       @david.block(@victoria).should be_true
-      @john.invite(@david).should be_true
+      @john.friendship_invite(@david).should be_true
       @david.block(@john).should be_true
-      @peter.invite(@elisabeth).should be_true
+      @peter.friendship_invite(@elisabeth).should be_true
       @elisabeth.block(@peter).should be_true
-      @jane.invite(@john).should be_true
-      @jane.invite(@james).should be_true
+      @jane.friendship_invite(@john).should be_true
+      @jane.friendship_invite(@james).should be_true
       @james.approve(@jane).should be_true
-      @victoria.invite(@jane).should be_true
-      @victoria.invite(@james).should be_true
+      @victoria.friendship_invite(@jane).should be_true
+      @victoria.friendship_invite(@james).should be_true
       @james.approve(@victoria).should be_true
     end
 
@@ -286,18 +286,18 @@ shared_examples_for "a friend model" do
     end
 
     it "should not list blocked users in invited" do
-      @victoria.invited.should == [@james]
+      @victoria.friendship_invited.should == [@james]
       @victoria.blocked.each do |user|
-        @victoria.invited.should_not include(user)
-        user.invited_by.should_not include(@victoria)
+        @victoria.friendship_invited.should_not include(user)
+        user.friendship_invited_by.should_not include(@victoria)
       end
     end
 
     it "should not list blocked users in invited pending by" do
-      @david.pending_invited_by.should be_empty
+      @david.pending_friendship_invited_by.should be_empty
       @david.blocked.each do |user|
-        @david.pending_invited_by.should_not include(user)
-        user.pending_invited.should_not include(@david)
+        @david.pending_friendship_invited_by.should_not include(user)
+        user.pending_friendship_invited.should_not include(@david)
       end
     end
 
@@ -311,26 +311,26 @@ shared_examples_for "a friend model" do
 
   context "when unblocking friendships" do
     before(:each) do
-      @john.invite(@james).should be_true
+      @john.friendship_invite(@james).should be_true
       @james.approve(@john).should be_true
       @john.block(@james).should be_true
       @john.unblock(@james).should be_true
-      @mary.invite(@victoria).should be_true
+      @mary.friendship_invite(@victoria).should be_true
       @victoria.approve(@mary).should be_true
       @victoria.block(@mary).should be_true
       @victoria.unblock(@mary).should be_true
-      @victoria.invite(@david).should be_true
+      @victoria.friendship_invite(@david).should be_true
       @david.block(@victoria).should be_true
       @david.unblock(@victoria).should be_true
-      @john.invite(@david).should be_true
+      @john.friendship_invite(@david).should be_true
       @david.block(@john).should be_true
-      @peter.invite(@elisabeth).should be_true
+      @peter.friendship_invite(@elisabeth).should be_true
       @elisabeth.block(@peter).should be_true
-      @jane.invite(@john).should be_true
-      @jane.invite(@james).should be_true
+      @jane.friendship_invite(@john).should be_true
+      @jane.friendship_invite(@james).should be_true
       @james.approve(@jane).should be_true
-      @victoria.invite(@jane).should be_true
-      @victoria.invite(@james).should be_true
+      @victoria.friendship_invite(@jane).should be_true
+      @victoria.friendship_invite(@james).should be_true
       @james.approve(@victoria).should be_true
     end
 
@@ -359,36 +359,36 @@ shared_examples_for "a friend model" do
     end
 
     it "should list unblocked users in invited" do
-      @john.invited.should == [@james]
-      @mary.invited.should == [@victoria]
+      @john.friendship_invited.should == [@james]
+      @mary.friendship_invited.should == [@victoria]
     end
 
     it "should list unblocked users in invited by" do
-      @victoria.invited_by.should == [@mary]
-      @james.invited_by.should =~ [@john, @jane, @victoria]
+      @victoria.friendship_invited_by.should == [@mary]
+      @james.friendship_invited_by.should =~ [@john, @jane, @victoria]
     end
 
     it "should list unblocked users in pending invited" do
-      @victoria.pending_invited.should =~ [@jane, @david]
+      @victoria.pending_friendship_invited.should =~ [@jane, @david]
     end
 
     it "should list unblocked users in pending invited by" do
-      @david.pending_invited_by.should == [@victoria]
+      @david.pending_friendship_invited_by.should == [@victoria]
     end
   end
 
   context "when counting friendships and blocks" do
     before do
-      @john.invite(@james).should be_true
+      @john.friendship_invite(@james).should be_true
       @james.approve(@john).should be_true
-      @john.invite(@victoria).should be_true
+      @john.friendship_invite(@victoria).should be_true
       @victoria.approve(@john).should be_true
-      @elisabeth.invite(@john).should be_true
+      @elisabeth.friendship_invite(@john).should be_true
       @john.approve(@elisabeth).should be_true
 
-      @victoria.invite(@david).should be_true
+      @victoria.friendship_invite(@david).should be_true
       @david.block(@victoria).should be_true
-      @mary.invite(@victoria).should be_true
+      @mary.friendship_invite(@victoria).should be_true
       @victoria.block(@mary).should be_true
     end
 

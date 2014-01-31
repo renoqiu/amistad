@@ -1,7 +1,7 @@
 module Amistad
   module MongoFriendModel
     # suggest a user to become a friend. If the operation succeeds, the method returns true, else false
-    def invite(user)
+    def friendship_invite(user)
       return false if friendshiped_with?(user) or user == self or blocked?(user)
       pending_friend_ids << user.id
       user.pending_inverse_friend_ids << self.id
@@ -20,7 +20,7 @@ module Amistad
 
     # returns the list of approved friends
     def friends
-      self.invited + self.invited_by
+      self.friendship_invited + self.friendship_invited_by
     end
 
     # total # of invited and invited_by without association loading
@@ -29,22 +29,22 @@ module Amistad
     end
 
     # return the list of invited friends
-    def invited
+    def friendship_invited
       self.class.find(friend_ids)
     end
 
     # return the list of friends who invited
-    def invited_by
+    def friendship_invited_by
       self.class.find(inverse_friend_ids)
     end
 
     # return the list of pending invited friends
-    def pending_invited
+    def pending_friendship_invited
       self.class.find(pending_friend_ids)
     end
 
     # return the list of pending friends who invited
-    def pending_invited_by
+    def pending_friendship_invited_by
       self.class.find(pending_inverse_friend_ids)
     end
 
@@ -65,12 +65,12 @@ module Amistad
     end
 
     # checks if a current user received invitation from given user
-    def invited_by?(user)
+    def friendship_invited_by?(user)
       user.friend_ids.include?(self.id) or user.pending_friend_ids.include?(self.id)
     end
 
     # checks if a current user invited given user
-    def invited?(user)
+    def friendship_invited?(user)
       self.friend_ids.include?(user.id) or self.pending_friend_ids.include?(user.id)
     end
 
